@@ -1,0 +1,169 @@
+<ion-content [fullscreen]="true">
+  <main class="home-shell">
+    <section class="top-bar" [attr.aria-label]="i18n.t('home.mainNavigation')">
+      <button class="round-button" type="button" [attr.aria-label]="i18n.t('home.menu')">
+        <ion-icon name="menu-outline"></ion-icon>
+      </button>
+
+      <div class="brand" [attr.aria-label]="i18n.t('app.name')">
+        <span>{{ i18n.t('app.name') }}</span>
+      </div>
+
+      <app-language-switcher></app-language-switcher>
+    </section>
+
+    <button class="location-card" type="button" [attr.aria-label]="i18n.t('home.changeAddress')">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{ displayedDeliveryAddress }}</span>
+      <ion-icon name="chevron-down-outline"></ion-icon>
+    </button>
+
+    <section class="section-heading">
+      <h2>{{ i18n.t('home.categories') }}</h2>
+      <button type="button" (click)="clearCategoryFilters()">{{ i18n.t('home.all') }}</button>
+    </section>
+
+    <section class="categories" [attr.aria-label]="i18n.t('home.categories')">
+      @for (category of categories; track category.id) {
+        <button
+          class="category-button"
+          [class.active]="isCategorySelected(category.id)"
+          type="button"
+          role="checkbox"
+          [attr.aria-checked]="isCategorySelected(category.id)"
+          (click)="toggleCategory(category.id)"
+        >
+          <span>
+            <ion-icon [name]="category.icon"></ion-icon>
+            <ion-icon class="category-check" name="checkmark-circle"></ion-icon>
+          </span>
+          <strong>{{ category.label }}</strong>
+        </button>
+      }
+    </section>
+
+    <section class="search-row" [attr.aria-label]="i18n.t('home.search')">
+      <label class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="search"
+          [value]="searchQuery"
+          (input)="searchRestaurants($any($event.target).value)"
+          [placeholder]="i18n.t('home.searchPlaceholder')"
+        />
+      </label>
+      <button class="filter-button" type="button" [attr.aria-label]="i18n.t('home.filters')">
+        <ion-icon name="options-outline"></ion-icon>
+      </button>
+    </section>
+
+    <section class="section-heading popular-heading">
+      <h2>Restaurants</h2>
+      <button type="button" (click)="clearCategoryFilters()">{{ i18n.t('home.all') }}</button>
+    </section>
+
+    <section class="restaurant-rail" aria-label="Restaurants">
+      @for (restaurant of filteredRestaurants; track restaurant.id) {
+        <article class="restaurant-card">
+          <div class="restaurant-body">
+            <div class="restaurant-logo">{{ restaurant.initials }}</div>
+            <div class="restaurant-main">
+              <h3>
+                {{ restaurant.name }}
+                <ion-icon name="checkmark-circle"></ion-icon>
+              </h3>
+              <span class="restaurant-category-badge">
+                <ion-icon [name]="getRestaurantCategoryIcon(restaurant)"></ion-icon>
+                {{ restaurant.kind }}
+              </span>
+              <p class="rating-line">
+                <ion-icon name="star"></ion-icon>
+                <span>{{ restaurant.rating }} ({{ restaurant.reviews }})</span>
+                <span>&middot;</span>
+                <span>{{ restaurant.priceLevel }}</span>
+              </p>
+            </div>
+          </div>
+
+          <p class="restaurant-address">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ restaurant.address }}</span>
+          </p>
+
+          <div class="restaurant-actions">
+            <span>{{ restaurant.fee }}</span>
+            <span>{{ restaurant.eta }}</span>
+            <button type="button" [attr.aria-label]="'Choisir ' + restaurant.name" (click)="chooseRestaurant(restaurant)">
+              <ion-icon name="bag-add-outline"></ion-icon>
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <article class="empty-state">
+          <strong>{{ i18n.t('home.emptyTitle') }}</strong>
+          <span>{{ i18n.t('home.emptyCopy') }}</span>
+        </article>
+      }
+    </section>
+
+    <section class="delivery-map-card" aria-label="Carte des restaurants proches">
+      <div class="map-header">
+        <div class="map-address">
+          <span class="map-kicker">
+            <ion-icon name="flash-outline"></ion-icon>
+            {{ mapStatus }}
+          </span>
+          <strong>{{ displayedDeliveryAddress }}</strong>
+        </div>
+        <div class="map-actions">
+          <button class="map-action" type="button" aria-label="Utiliser ma position actuelle" (click)="useCurrentPosition()">
+            <ion-icon name="navigate-outline"></ion-icon>
+          </button>
+          <button class="map-action" type="button" aria-label="Utiliser mon adresse" (click)="setAddressOnMap()">
+            <ion-icon name="location-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <div #deliveryMap class="delivery-map"></div>
+
+      <div class="map-route-panel">
+        <span class="map-distance">
+          <ion-icon name="navigate-outline"></ion-icon>
+          {{ routeSummary }}
+        </span>
+        <span class="map-stops" aria-hidden="true">
+          @for (stop of mapStops; track stop.code) {
+            <span>{{ stop.code }}</span>
+          }
+        </span>
+      </div>
+    </section>
+
+    @if (false) {
+    <section class="offers-heading">
+      <h2>{{ i18n.t('home.offers') }}</h2>
+      <button class="offer-card" type="button" [attr.aria-label]="i18n.t('home.offerCta')">
+        <span class="offer-icon">
+          <ion-icon name="pricetag-outline"></ion-icon>
+        </span>
+        <span class="offer-copy">
+          <strong>{{ i18n.t('home.offerTitle') }}</strong>
+          <small>{{ i18n.t('home.offerCode') }} <b>GRAVITY20</b></small>
+        </span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </section>
+
+    <section class="stories-section" [attr.aria-label]="i18n.t('home.heroAlt')">
+      <div class="stories-rail">
+        @for (story of storyImages; track story.image) {
+          <article class="story-card">
+            <img [src]="story.image" [alt]="story.alt" />
+          </article>
+        }
+      </div>
+    </section>
+    }
+  </main>
+</ion-content>

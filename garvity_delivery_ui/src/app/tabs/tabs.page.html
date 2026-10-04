@@ -1,0 +1,48 @@
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="home" href="/tabs/home">
+      <ion-icon aria-hidden="true" name="home-outline"></ion-icon>
+      <ion-label>{{ i18n.t('tabs.home') }}</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="tab2" href="/tabs/tab2">
+      <ion-icon aria-hidden="true" name="search-outline"></ion-icon>
+      <ion-label>{{ i18n.t('tabs.search') }}</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="cart" href="/tabs/cart">
+      <ion-icon aria-hidden="true" name="cart-outline"></ion-icon>
+      <ion-label>Panier</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="orders" href="/tabs/orders">
+      <ion-icon aria-hidden="true" name="receipt-outline"></ion-icon>
+      @if (canManageRestaurants && ownerOrderBadgeCount) {
+        <span class="notification-badge order-badge">{{ ownerOrderBadgeCount }}</span>
+      }
+      <ion-label>Commande</ion-label>
+    </ion-tab-button>
+
+    @if (canManageRestaurants) {
+      <ion-tab-button tab="restaurant-owner" href="/tabs/restaurant-owner">
+        <ion-icon aria-hidden="true" name="business-outline"></ion-icon>
+        <ion-label>{{ i18n.t('tabs.restaurantOwner') }}</ion-label>
+      </ion-tab-button>
+    }
+
+    @if (canDeliverOrders) {
+      <ion-tab-button tab="rider" href="/tabs/rider">
+        <ion-icon aria-hidden="true" name="bicycle-outline"></ion-icon>
+        <ion-label>Rider</ion-label>
+      </ion-tab-button>
+    }
+
+    <ion-tab-button tab="tab5" href="/tabs/tab5">
+      <ion-icon aria-hidden="true" name="person-outline"></ion-icon>
+      @if (unreadCount()) {
+        <span class="notification-badge">{{ unreadCount() }}</span>
+      }
+      <ion-label>{{ i18n.t('tabs.profile') }}</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

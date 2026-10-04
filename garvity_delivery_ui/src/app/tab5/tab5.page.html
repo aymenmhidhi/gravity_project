@@ -1,0 +1,63 @@
+<ion-content [fullscreen]="true">
+  <main class="profile-page">
+    <section class="profile-card" [attr.aria-label]="i18n.t('profile.userProfile')">
+      <div class="profile-tools">
+        <app-language-switcher></app-language-switcher>
+      </div>
+
+      <div class="profile-avatar">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </div>
+
+      <div class="profile-copy">
+        <span>{{ i18n.t('profile.activeSession') }}</span>
+        <h1>{{ i18n.t('profile.title') }}</h1>
+        <p>
+          {{ i18n.t('profile.copy') }}
+        </p>
+      </div>
+
+      <div class="session-state">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>{{ i18n.t('profile.cookieToken') }}</span>
+      </div>
+
+      <section class="notifications-panel">
+        <div class="notifications-heading">
+          <span>
+            <ion-icon name="notifications-outline"></ion-icon>
+            Notifications
+          </span>
+          @if (unreadCount()) {
+            <button type="button" (click)="markAllRead()">
+              <ion-icon name="checkmark-done-outline"></ion-icon>
+              Tout lu
+            </button>
+          }
+        </div>
+
+        <div class="notifications-list">
+          @for (notification of notifications(); track notification.id) {
+            <button
+              class="notification-row"
+              [class.unread]="!notification.read"
+              type="button"
+              (click)="markRead(notification)"
+            >
+              <strong>{{ notification.title }}</strong>
+              <span>{{ notification.message }}</span>
+              <small>{{ formatDate(notification.createdAt) }}</small>
+            </button>
+          } @empty {
+            <p class="empty-notifications">Aucune notification.</p>
+          }
+        </div>
+      </section>
+
+      <button class="logout-button" type="button" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>{{ i18n.t('profile.logout') }}</span>
+      </button>
+    </section>
+  </main>
+</ion-content>

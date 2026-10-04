@@ -1,0 +1,310 @@
+<ion-content [fullscreen]="true">
+  <main class="owner-page">
+    <section class="topbar">
+      @if (selectedRestaurant || restaurantFormMode === 'create') {
+        <button class="icon-button" type="button" (click)="backToList()" aria-label="Retour">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+      }
+
+      <div>
+        <span>Restaurant owner</span>
+        <h1>{{ selectedRestaurant || restaurantFormMode === 'create' ? 'Detail restaurant' : 'Restaurants' }}</h1>
+      </div>
+    </section>
+
+    @if (!selectedRestaurant && restaurantFormMode !== 'create') {
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <span>{{ restaurants.length }} restaurants</span>
+            <h2>Liste des restaurants</h2>
+          </div>
+        </div>
+
+        <div class="restaurant-table">
+          <div class="table-head" aria-hidden="true">
+            <span>Nom du restaurant</span>
+            <span>Categorie</span>
+            <span>Adresse</span>
+            <span>Statut</span>
+            <span>Actions</span>
+          </div>
+
+          @for (restaurant of restaurants; track restaurant.id) {
+            <article class="restaurant-row" role="button" tabindex="0" (click)="openRestaurant(restaurant)">
+              <strong>{{ restaurant.name }}</strong>
+              <span class="restaurant-category-pill">
+                <ion-icon [name]="getRestaurantCategoryIcon(restaurant.category)"></ion-icon>
+                {{ restaurant.category }}
+              </span>
+              <span class="muted">{{ restaurant.address }}</span>
+              <em class="status" [class.paused]="restaurant.status === 'PAUSED'" [class.closed]="restaurant.status === 'CLOSED'">
+                {{ statusLabels[restaurant.status] }}
+              </em>
+              <div class="row-actions">
+                <button class="small-button" type="button" (click)="startEditRestaurant(restaurant, $event)">
+                  <ion-icon name="create-outline"></ion-icon>
+                  Editer
+                </button>
+                <button class="small-button danger" type="button" (click)="deleteRestaurant(restaurant.id, $event)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                  Supprimer
+                </button>
+              </div>
+            </article>
+          } @empty {
+            <article class="empty-state">Aucun restaurant.</article>
+          }
+        </div>
+
+        <button class="primary-action footer-action" type="button" (click)="startAddRestaurant()">
+          <ion-icon name="add-outline"></ion-icon>
+          Ajouter un restaurant
+        </button>
+      </section>
+    }
+
+    @if (restaurantFormMode === 'create' || restaurantFormMode === 'edit') {
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <span>Informations du restaurant</span>
+            <h2>{{ restaurantFormMode === 'create' ? 'Ajouter un restaurant' : 'Modifier le restaurant' }}</h2>
+          </div>
+          <button class="ghost-button" type="button" (click)="cancelForms()">Annuler</button>
+        </div>
+
+        <form class="form-grid" (ngSubmit)="saveRestaurant()">
+          <label>
+            <span>Nom</span>
+            <input [(ngModel)]="restaurantDraft.name" name="restaurantName" type="text" />
+          </label>
+
+          <div class="restaurant-category-field wide-field">
+            <span>Categorie</span>
+            <div class="restaurant-category-picker" aria-label="Categorie du restaurant">
+              @for (category of restaurantCategories; track category.value) {
+                <button
+                  type="button"
+                  class="restaurant-category-option"
+                  [class.active]="restaurantDraft.category === category.value"
+                  (click)="selectRestaurantCategory(category.value)"
+                >
+                  <ion-icon [name]="category.icon"></ion-icon>
+                  <span>{{ category.label }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <label>
+            <span>Statut</span>
+            <select [(ngModel)]="restaurantDraft.status" name="restaurantStatus">
+              @for (status of statuses; track status) {
+                <option [value]="status">{{ statusLabels[status] }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            <span>Horaires</span>
+            <input [(ngModel)]="restaurantDraft.openingHours" name="restaurantHours" type="text" />
+          </label>
+
+          <label>
+            <span>Image/logo</span>
+            <input [(ngModel)]="restaurantDraft.image" name="restaurantImage" type="text" />
+          </label>
+
+          <label class="wide-field">
+            <span>Adresse</span>
+            <div class="address-control">
+              <ion-icon name="location-outline"></ion-icon>
+              <input
+                [ngModel]="restaurantDraft.address"
+                (ngModelChange)="searchRestaurantAddress($event)"
+                autocomplete="street-address"
+                name="restaurantAddress"
+                placeholder="Commencez a taper l'adresse"
+                type="text"
+              />
+            </div>
+          </label>
+
+          @if (isSearchingAddress) {
+            <p class="field-hint wide-field">Recherche adresse...</p>
+          }
+
+          @if (addressSuggestions.length) {
+            <div class="address-suggestions wide-field" role="listbox">
+              @for (suggestion of addressSuggestions; track suggestion.id) {
+                <button type="button" role="option" (click)="selectRestaurantAddress(suggestion)">
+                  <strong>{{ suggestion.line1 }}</strong>
+                  <span>{{ suggestion.postalCode }} {{ suggestion.city }}, {{ suggestion.country }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          @if (restaurantDraft.addressDetails) {
+            <p class="field-hint wide-field">
+              {{ restaurantDraft.addressDetails.postalCode }} {{ restaurantDraft.addressDetails.city }},
+              {{ restaurantDraft.addressDetails.country }}
+            </p>
+          }
+
+          <label class="wide-field">
+            <span>Description</span>
+            <textarea [(ngModel)]="restaurantDraft.description" name="restaurantDescription" rows="3"></textarea>
+          </label>
+
+          <button class="primary-action wide-field" type="submit">
+            {{ restaurantFormMode === 'create' ? 'Ajouter' : 'Modifier' }}
+          </button>
+        </form>
+      </section>
+    }
+
+    @if (selectedRestaurant; as restaurant) {
+      <section class="restaurant-detail">
+        <img [src]="restaurant.image" [alt]="restaurant.name" />
+        <div>
+          <em class="status" [class.paused]="restaurant.status === 'PAUSED'" [class.closed]="restaurant.status === 'CLOSED'">
+            {{ statusLabels[restaurant.status] }}
+          </em>
+          <h2>{{ restaurant.name }}</h2>
+          <p>{{ restaurant.description }}</p>
+          <div class="detail-tags">
+            <span><ion-icon [name]="getRestaurantCategoryIcon(restaurant.category)"></ion-icon>{{ restaurant.category }}</span>
+            <span><ion-icon name="location-outline"></ion-icon>{{ restaurant.address }}</span>
+            <span><ion-icon name="calendar-outline"></ion-icon>{{ restaurant.openingHours }}</span>
+          </div>
+        </div>
+        <button class="primary-action compact" type="button" (click)="startEditRestaurant(restaurant)">
+          Modifier
+        </button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <span>Section produits</span>
+            <h2>Produits</h2>
+          </div>
+          <button class="primary-action compact" type="button" (click)="startAddProduct()">Ajouter un produit</button>
+        </div>
+
+        @if (productFormMode !== 'hidden') {
+          <form class="inline-form" (ngSubmit)="saveProduct()">
+            <div class="product-type-picker" aria-label="Categorie du produit">
+              @for (productType of productTypes; track productType.value) {
+                <button
+                  type="button"
+                  class="product-type-option"
+                  [class.active]="productDraft.type === productType.value"
+                  [attr.data-type]="productType.value"
+                  (click)="selectProductType(productType.value)"
+                >
+                  <ion-icon [name]="productType.icon"></ion-icon>
+                  <span>{{ productType.label }}</span>
+                </button>
+              }
+            </div>
+            <input [(ngModel)]="productDraft.name" name="productName" placeholder="Nom" type="text" />
+            <input [(ngModel)]="productDraft.price" name="productPrice" placeholder="Prix" min="0" step="0.1" type="number" />
+            <select [(ngModel)]="productDraft.currency" name="productCurrency">
+              @for (currency of currencies; track currency.code) {
+                <option [value]="currency.code">{{ currency.code }}</option>
+              }
+            </select>
+            <select [(ngModel)]="productDraft.available" name="productAvailable">
+              <option [ngValue]="true">Disponible</option>
+              <option [ngValue]="false">Indisponible</option>
+            </select>
+            <button class="primary-action compact" type="submit">{{ productFormMode === 'create' ? 'Ajouter' : 'Modifier' }}</button>
+            <button class="ghost-button" type="button" (click)="cancelForms()">Annuler</button>
+          </form>
+        }
+
+        <div class="simple-list">
+          @for (product of restaurant.products; track product.id) {
+            <article class="list-row">
+              <div class="product-name">
+                <span class="product-type-badge" [attr.data-type]="product.type ?? 'MAIN'">
+                  <ion-icon [name]="getProductTypeIcon(product.type)"></ion-icon>
+                </span>
+                <span>
+                  <strong>{{ product.name }}</strong>
+                  <small>{{ getProductTypeLabel(product.type) }}</small>
+                </span>
+              </div>
+              <span>{{ formatMoney(product.price, product.currency) }}</span>
+              <em class="availability" [class.off]="!product.available">
+                {{ product.available ? 'Disponible' : 'Indisponible' }}
+              </em>
+              <div class="row-actions">
+                <button class="small-button" type="button" (click)="startEditProduct(product)">Editer</button>
+                <button class="small-button danger" type="button" (click)="deleteProduct(product.id)">Supprimer</button>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <span>Section menus</span>
+            <h2>Menus</h2>
+          </div>
+          <button class="primary-action compact" type="button" (click)="startAddMenu()">Ajouter un menu</button>
+        </div>
+
+        @if (menuFormMode !== 'hidden') {
+          <form class="menu-form" (ngSubmit)="saveMenu()">
+            <input [(ngModel)]="menuDraft.name" name="menuName" placeholder="Nom" type="text" />
+            <input [(ngModel)]="menuDraft.price" name="menuPrice" placeholder="Prix" min="0" step="0.1" type="number" />
+            <select [(ngModel)]="menuDraft.currency" name="menuCurrency">
+              @for (currency of currencies; track currency.code) {
+                <option [value]="currency.code">{{ currency.code }}</option>
+              }
+            </select>
+            <div class="product-picker">
+              @for (product of restaurant.products; track product.id) {
+                <label>
+                  <input
+                    type="checkbox"
+                    [checked]="isMenuProductSelected(product.id)"
+                    (change)="toggleMenuProduct(product.id, $any($event.target).checked)"
+                  />
+                  {{ product.name }}
+                </label>
+              }
+            </div>
+            <button class="primary-action compact" type="submit">{{ menuFormMode === 'create' ? 'Ajouter' : 'Modifier' }}</button>
+            <button class="ghost-button" type="button" (click)="cancelForms()">Annuler</button>
+          </form>
+        }
+
+        <div class="simple-list">
+          @for (menu of restaurant.menus; track menu.id) {
+            <article class="list-row menu-row">
+              <strong>{{ menu.name }}</strong>
+              <span>{{ formatMoney(getMenuPrice(menu), menu.currency) }}</span>
+              <span class="muted">{{ getMenuProductNames(menu) || 'Aucun produit' }}</span>
+              <div class="row-actions">
+                <button class="small-button" type="button" (click)="startEditMenu(menu)">Editer</button>
+                <button class="small-button danger" type="button" (click)="deleteMenu(menu.id)">Supprimer</button>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    @if (message) {
+      <p class="message">{{ message }}</p>
+    }
+  </main>
+</ion-content>

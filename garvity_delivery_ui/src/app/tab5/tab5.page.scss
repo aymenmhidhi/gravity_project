@@ -1,0 +1,186 @@
+:host {
+  color: #ffffff;
+}
+
+ion-content {
+  --background: #02080a;
+}
+
+.profile-page {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(36, 255, 154, 0.12), transparent 28rem),
+    #02080a;
+}
+
+.profile-card {
+  width: min(100%, 25rem);
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem;
+  border: 1px solid rgba(36, 255, 154, 0.22);
+  border-radius: 1.4rem;
+  background: rgba(5, 18, 20, 0.86);
+  box-shadow: 0 1.4rem 3.5rem rgba(0, 0, 0, 0.38);
+}
+
+.profile-tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.profile-avatar {
+  width: 4rem;
+  height: 4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1.2rem;
+  color: #24ff9a;
+  background: rgba(36, 255, 154, 0.12);
+  box-shadow: 0 0 1.6rem rgba(36, 255, 154, 0.12);
+
+  ion-icon {
+    font-size: 2.35rem;
+  }
+}
+
+.profile-copy {
+  span {
+    color: #24ff9a;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0.35rem 0;
+    font-size: 2rem;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.66);
+    line-height: 1.5;
+  }
+}
+
+.session-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: fit-content;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(36, 255, 154, 0.24);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.84);
+  background: rgba(36, 255, 154, 0.08);
+  font-size: 0.82rem;
+  font-weight: 800;
+
+  ion-icon {
+    color: #24ff9a;
+  }
+}
+
+.notifications-panel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(36, 255, 154, 0.16);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.notifications-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.notifications-heading span,
+.notifications-heading button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.notifications-heading span {
+  color: #24ff9a;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.notifications-heading button {
+  min-height: 2.2rem;
+  border: 1px solid rgba(36, 255, 154, 0.24);
+  border-radius: 0.75rem;
+  color: #ffffff;
+  background: rgba(36, 255, 154, 0.08);
+  padding: 0 0.65rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.notifications-list {
+  max-height: 18rem;
+  display: grid;
+  gap: 0.55rem;
+  overflow: auto;
+}
+
+.notification-row {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.8rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.75rem;
+  text-align: left;
+  font: inherit;
+}
+
+.notification-row.unread {
+  border-color: rgba(36, 255, 154, 0.42);
+  background: rgba(36, 255, 154, 0.08);
+}
+
+.notification-row span,
+.notification-row small,
+.empty-notifications {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.notification-row strong {
+  font-size: 0.9rem;
+}
+
+.notification-row span,
+.notification-row small,
+.empty-notifications {
+  font-size: 0.8rem;
+}
+
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3.1rem;
+  border: 0;
+  border-radius: 1rem;
+  color: #03110b;
+  background: linear-gradient(135deg, #24ff9a, #a7ff4f);
+  box-shadow: 0 0.85rem 2rem rgba(36, 255, 154, 0.2);
+  font-weight: 900;
+
+  ion-icon {
+    font-size: 1.2rem;
+  }
+}

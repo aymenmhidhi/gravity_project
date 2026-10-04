@@ -1,0 +1,95 @@
+<ion-content [fullscreen]="true">
+  <main class="rider-page">
+    <section class="topbar">
+      <div>
+        <span>Rider</span>
+        <h1>Livraisons</h1>
+      </div>
+      <button class="icon-button" type="button" (click)="refresh()" aria-label="Rafraichir">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <span><ion-icon name="location-outline"></ion-icon> Position</span>
+        <strong>{{ isLoading ? 'Sync...' : radiusKm + ' km' }}</strong>
+      </div>
+      <div class="location-grid">
+        <label>
+          <span>Latitude</span>
+          <input type="number" step="0.0001" [(ngModel)]="latitude" />
+        </label>
+        <label>
+          <span>Longitude</span>
+          <input type="number" step="0.0001" [(ngModel)]="longitude" />
+        </label>
+        <label>
+          <span>Rayon km</span>
+          <input type="number" min="1" step="1" [(ngModel)]="radiusKm" />
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <span><ion-icon name="bicycle-outline"></ion-icon> Disponibles</span>
+        <strong>{{ availableOrders.length }}</strong>
+      </div>
+
+      <div class="order-list">
+        @for (order of availableOrders; track order.id) {
+          <article class="order-card">
+            <div>
+              <strong>#{{ order.id.slice(0, 8) }}</strong>
+              <span>{{ statusLabel(order) }}</span>
+              <p>{{ order.deliveryAddress }}</p>
+            </div>
+            <button type="button" (click)="accept(order)">Prendre</button>
+          </article>
+        } @empty {
+          <p class="empty-state">Aucune commande disponible autour de toi.</p>
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <span><ion-icon name="navigate-outline"></ion-icon> Mes courses</span>
+        <strong>{{ activeOrders.length }}</strong>
+      </div>
+
+      <div class="order-list">
+        @for (order of activeOrders; track order.id) {
+          <article class="order-card active">
+            <div>
+              <strong>#{{ order.id.slice(0, 8) }}</strong>
+              <span>{{ statusLabel(order) }}</span>
+              <p>{{ formatPrice(order.totalAmount) }} &middot; {{ order.deliveryAddress }}</p>
+            </div>
+            <div class="actions">
+              @if (canPickUp(order)) {
+                <button type="button" (click)="markPickedUp(order)">Recuperee</button>
+              }
+              @if (canStartDelivery(order)) {
+                <button type="button" (click)="markEnRoute(order)">En route</button>
+              }
+              @if (canDeliver(order)) {
+                <button type="button" (click)="markDelivered(order)">Livree</button>
+              }
+              @if (order.status === 'DELIVERED') {
+                <em><ion-icon name="checkmark-circle-outline"></ion-icon> Livree</em>
+              }
+            </div>
+          </article>
+        } @empty {
+          <p class="empty-state">Aucune course active.</p>
+        }
+      </div>
+    </section>
+
+    @if (message) {
+      <p class="message">{{ message }}</p>
+    }
+  </main>
+</ion-content>

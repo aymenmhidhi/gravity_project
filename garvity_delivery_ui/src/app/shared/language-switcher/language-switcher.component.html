@@ -1,0 +1,10 @@
+<label class="language-switcher">
+  <span>{{ i18n.t('language.label') }}</span>
+  <select [ngModel]="i18n.language()" (ngModelChange)="updateLanguage($event)" [attr.aria-label]="i18n.t('language.label')">
+    @for (language of languages; track language.value) {
+      <option [value]="language.value">
+        {{ language.shortLabel }} - {{ i18n.t(language.labelKey) }}
+      </option>
+    }
+  </select>
+</label>

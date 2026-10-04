@@ -1,0 +1,67 @@
+<ion-content [fullscreen]="true">
+  <main class="login-shell">
+    <section class="login-card" [attr.aria-label]="i18n.t('auth.loginTitle') + ' ' + i18n.t('app.name')">
+      <div class="auth-tools">
+        <app-language-switcher></app-language-switcher>
+      </div>
+
+      <div class="brand-mark" [attr.aria-label]="i18n.t('app.name')">
+        <span class="brand-orbit">
+          <ion-icon name="rocket-outline"></ion-icon>
+        </span>
+        <div>
+          <strong>{{ i18n.t('app.name') }}</strong>
+        </div>
+      </div>
+
+      <div class="login-heading">
+        <span>{{ i18n.t('auth.secureAccess') }}</span>
+        <h1>{{ i18n.t('auth.loginTitle') }}</h1>
+      </div>
+
+      <form class="login-form" (ngSubmit)="login()">
+        <label class="field">
+          <span>{{ i18n.t('auth.email') }}</span>
+          <div class="field-control">
+            <ion-icon name="mail-outline"></ion-icon>
+            <input
+              [(ngModel)]="email"
+              autocomplete="email"
+              inputmode="email"
+              name="email"
+              [placeholder]="i18n.t('auth.emailPlaceholder')"
+              type="email"
+            />
+          </div>
+        </label>
+
+        <label class="field">
+          <span>{{ i18n.t('auth.password') }}</span>
+          <div class="field-control">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input
+              [(ngModel)]="password"
+              autocomplete="current-password"
+              name="password"
+              [placeholder]="i18n.t('auth.passwordPlaceholder')"
+              type="password"
+            />
+          </div>
+        </label>
+
+        @if (errorMessage) {
+          <p class="error-message">{{ errorMessage }}</p>
+        }
+
+        <button class="submit-button" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? i18n.t('auth.loginLoading') : i18n.t('auth.loginButton') }}
+        </button>
+      </form>
+
+      <nav class="auth-links" [attr.aria-label]="i18n.t('auth.secureAccess')">
+        <a routerLink="/login">{{ i18n.t('auth.forgotPassword') }}</a>
+        <a routerLink="/register">{{ i18n.t('auth.createAccount') }}</a>
+      </nav>
+    </section>
+  </main>
+</ion-content>

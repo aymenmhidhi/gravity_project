@@ -1,0 +1,240 @@
+<ion-content [fullscreen]="true">
+  <main class="customer-orders-page">
+    @if (isRestaurantOwner) {
+      <section class="orders-header">
+        <div>
+          <span>Restaurant owner</span>
+          <h1>Commande</h1>
+        </div>
+      </section>
+
+      <section class="owner-order-stats" aria-label="Compteurs commandes restaurant">
+        <article>
+          <strong>{{ ownerPendingCount }}</strong>
+          <span>A valider</span>
+        </article>
+        <article>
+          <strong>{{ ownerPreparationCount }}</strong>
+          <span>Preparation</span>
+        </article>
+        <article>
+          <strong>{{ ownerDeliveryCount }}</strong>
+          <span>Livraison</span>
+        </article>
+        <article>
+          <strong>{{ ownerActiveCount }}</strong>
+          <span>Actives</span>
+        </article>
+      </section>
+
+      @if (ownerOrders.length) {
+        <section class="owner-orders-list" aria-label="Commandes restaurant">
+          @for (order of ownerOrders; track order.id) {
+            <article class="owner-order-card" [class.urgent]="canAcceptOwnerOrder(order)">
+              <div class="owner-order-top">
+                <span class="order-reference">
+                  <ion-icon name="receipt-outline"></ion-icon>
+                  {{ orderReference(order) }}
+                </span>
+                <em [class.waiting]="canAcceptOwnerOrder(order)">{{ statusLabel(order.status) }}</em>
+              </div>
+
+              <div class="owner-order-title">
+                <div>
+                  <strong>{{ ownerRestaurantName(order) }}</strong>
+                  <span>{{ formatDate(order.createdAt) }}</span>
+                </div>
+                <strong>{{ formatPrice(order.totalAmount) }}</strong>
+              </div>
+
+              <div class="owner-order-items">
+                @for (item of order.items; track item.id ?? item.menuItemId ?? item.menuPackageId) {
+                  <div>
+                    <span>{{ item.quantity }}x {{ orderItemName(item) }}</span>
+                    <strong>{{ formatPrice(orderItemTotal(item)) }}</strong>
+                  </div>
+                }
+              </div>
+
+              <p class="owner-order-address">
+                <ion-icon name="restaurant-outline"></ion-icon>
+                {{ order.deliveryAddress }}
+              </p>
+
+              <div class="owner-order-actions">
+                @if (canAcceptOwnerOrder(order)) {
+                  <button class="accept-order-button" type="button" [disabled]="isOwnerOrderProcessing(order)" (click)="acceptOwnerOrder(order)">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    {{ isOwnerOrderProcessing(order) ? 'Validation...' : 'Prendre la commande' }}
+                  </button>
+                  <button class="reject-icon-button" type="button" [disabled]="isOwnerOrderProcessing(order)" (click)="refuseOwnerOrder(order)" aria-label="Refuser la commande">
+                    <ion-icon name="close-circle-outline"></ion-icon>
+                  </button>
+                }
+                @if (canMarkOwnerOrderReady(order)) {
+                  <button class="ready-order-button" type="button" [disabled]="isOwnerOrderProcessing(order)" (click)="markOwnerOrderReady(order)">
+                    <ion-icon name="bag-check-outline"></ion-icon>
+                    {{ isOwnerOrderProcessing(order) ? 'Mise a jour...' : 'Commande prete' }}
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </section>
+      } @else {
+        <section class="empty-orders">
+          <span>
+            <ion-icon name="receipt-outline"></ion-icon>
+          </span>
+          <h1>{{ isLoading ? 'Chargement...' : 'Aucune commande' }}</h1>
+          <p>{{ loadError || 'Les nouvelles commandes restaurant arriveront ici.' }}</p>
+        </section>
+      }
+
+      @if (actionMessage) {
+        <p class="action-message">{{ actionMessage }}</p>
+      }
+    } @else {
+      <section class="orders-header">
+        <div>
+          <span>Suivi client</span>
+          <h1>Commande</h1>
+        </div>
+        <button class="cart-shortcut" type="button" (click)="goToCart()">
+          <ion-icon name="receipt-outline"></ion-icon>
+          Panier
+        </button>
+      </section>
+
+      @if (myOrders.length) {
+        <section class="orders-strip" aria-label="Commandes recentes">
+          @for (order of myOrders; track order.id) {
+            <button class="order-chip" [class.active]="selectedOrder?.id === order.id" type="button" (click)="openOrder(order.id)">
+              <strong>{{ orderReference(order) }}</strong>
+              <span>{{ statusLabel(order.status) }}</span>
+            </button>
+          }
+        </section>
+      }
+
+      @if (selectedOrder; as order) {
+        <section class="order-summary">
+          <div class="summary-top">
+            <div>
+              <span>{{ orderReference(order) }}</span>
+              <h2>{{ statusLabel(order.status) }}</h2>
+            </div>
+            <strong>{{ formatPrice(order.totalAmount) }}</strong>
+          </div>
+
+          <div class="summary-grid">
+            <span>Adresse</span>
+            <strong>{{ order.deliveryAddress }}</strong>
+            <span>Creee</span>
+            <strong>{{ formatDate(order.createdAt) }}</strong>
+            @if (selectedTracking) {
+              <span>Estimation</span>
+              <strong>{{ selectedTracking.estimatedDeliveryTimeMinutes }} min</strong>
+              <span>Distance</span>
+              <strong>{{ selectedTracking.distanceRestaurantClientKm }} km</strong>
+            }
+          </div>
+
+          @if (order.items.length) {
+            <div class="items-panel">
+              <h3>Articles</h3>
+              @for (item of order.items; track item.id ?? item.menuItemId ?? item.menuPackageId) {
+                <div class="item-line">
+                  <span>{{ item.quantity }}x {{ item.itemNameSnapshot || 'Article commande' }}</span>
+                  <strong>{{ formatPrice(item.totalPrice ?? (item.unitPrice ?? 0) * item.quantity) }}</strong>
+                </div>
+              }
+            </div>
+          }
+
+          @if (selectedTracking?.restaurant; as restaurant) {
+            <article class="restaurant-card">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <div>
+                <span>Restaurant</span>
+                <strong>{{ restaurant.name }}</strong>
+              </div>
+            </article>
+          }
+
+          @if (selectedTracking?.rider; as rider) {
+            <article class="restaurant-card rider-card">
+              <ion-icon name="bicycle-outline"></ion-icon>
+              <div>
+                <span>Rider</span>
+                <strong>{{ rider.fullName }}</strong>
+              </div>
+            </article>
+          }
+
+          <section class="timeline-panel">
+            <div class="panel-heading">
+              <span>Timeline</span>
+              <strong>{{ selectedHistory.length }} changement(s)</strong>
+            </div>
+
+            <div class="timeline">
+              @for (step of timeline(); track step.id) {
+                <article class="timeline-step" [class.done]="step.state === 'done'" [class.active]="step.state === 'active'" [class.pending]="step.state === 'pending'" [class.blocked]="step.state === 'blocked'">
+                  <span class="step-icon">
+                    <ion-icon [name]="step.icon"></ion-icon>
+                  </span>
+                  <div>
+                    <h3>{{ step.label }}</h3>
+                    <p>{{ step.detail }}</p>
+                  </div>
+                  @if (step.dateLabel) {
+                    <small>{{ step.dateLabel }}</small>
+                  }
+                </article>
+              }
+            </div>
+          </section>
+
+          @if (canCancel(order)) {
+            <button class="cancel-button" type="button" (click)="cancelOrder(order)">Annuler la commande</button>
+          }
+
+          @if (actionMessage) {
+            <p class="action-message">{{ actionMessage }}</p>
+          }
+        </section>
+      } @else {
+        <section class="empty-orders">
+          <span>
+            <ion-icon name="receipt-outline"></ion-icon>
+          </span>
+          <h1>{{ isLoading ? 'Chargement...' : 'Aucune commande' }}</h1>
+          <p>{{ loadError || 'Valide un panier pour suivre la preparation et la livraison ici.' }}</p>
+          <button type="button" (click)="goToCart()">Aller au panier</button>
+        </section>
+
+        <section class="timeline-panel preview-timeline">
+          <div class="panel-heading">
+            <span>Timeline</span>
+            <strong>Apercu</strong>
+          </div>
+
+          <div class="timeline">
+            @for (step of timeline(); track step.id) {
+              <article class="timeline-step" [class.active]="step.state === 'active'" [class.pending]="step.state === 'pending'">
+                <span class="step-icon">
+                  <ion-icon [name]="step.icon"></ion-icon>
+                </span>
+                <div>
+                  <h3>{{ step.label }}</h3>
+                  <p>{{ step.detail }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    }
+  </main>
+</ion-content>

@@ -1,0 +1,155 @@
+<ion-content [fullscreen]="true">
+  <main class="order-page">
+    @if (selectedRestaurant(); as restaurant) {
+      <section class="order-topbar">
+        <button class="icon-button" type="button" aria-label="Choisir un autre restaurant" (click)="chooseAnotherRestaurant()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+        <div>
+          <span>{{ i18n.t('tabs.cart') }}</span>
+          <h1>{{ restaurant.name }}</h1>
+        </div>
+      </section>
+
+      <section class="restaurant-hero">
+        <div class="restaurant-logo">{{ restaurant.initials }}</div>
+        <div class="restaurant-copy">
+          <span class="category-pill">
+            <ion-icon name="restaurant-outline"></ion-icon>
+            {{ restaurant.kind }}
+          </span>
+          <p>
+            <ion-icon name="star"></ion-icon>
+            {{ restaurant.rating }} ({{ restaurant.reviews }}) &middot; {{ restaurant.priceLevel }}
+          </p>
+          <p>
+            <ion-icon name="location-outline"></ion-icon>
+            {{ restaurant.address }}
+          </p>
+        </div>
+      </section>
+
+      <section class="section-heading">
+        <h2>Menus</h2>
+        <span>{{ isLoadingMenu ? 'Sync' : menus().length }}</span>
+      </section>
+
+      <section class="menu-list">
+        @for (menu of menus(); track menu.id) {
+          <article class="menu-card">
+            <div class="item-main">
+              <div>
+                <h3>{{ menu.name }}</h3>
+                <p>{{ menu.description }}</p>
+                <small>
+                  @for (product of menu.products; track product.id) {
+                    <span>{{ product.name }}</span>
+                  }
+                </small>
+              </div>
+              <strong>{{ formatPrice(menu.price, menu.currency) }}</strong>
+            </div>
+            <div class="quantity-actions">
+              @if (getMenuQuantity(menu)) {
+                <button type="button" aria-label="Retirer le menu" (click)="decrementItem({ id: menu.id, kind: 'menu', name: menu.name, price: menu.price, currency: menu.currency, quantity: 1 })">
+                  <ion-icon name="remove-circle-outline"></ion-icon>
+                </button>
+                <span>{{ getMenuQuantity(menu) }}</span>
+              }
+              <button type="button" aria-label="Ajouter le menu" (click)="addMenu(menu)">
+                <ion-icon name="add-circle-outline"></ion-icon>
+              </button>
+            </div>
+          </article>
+        }
+      </section>
+
+      @if (!isLoadingMenu && !menus().length && !productSections().length) {
+        <section class="backend-empty">
+          <h2>Aucun menu backend</h2>
+          <p>Ce restaurant n'a pas encore de produits ou menus actifs dans le backend.</p>
+        </section>
+      }
+
+      @for (section of productSections(); track section.type) {
+        <section class="section-heading">
+          <h2>{{ section.label }}</h2>
+          <span>{{ section.products.length }}</span>
+        </section>
+
+        <section class="product-list">
+          @for (product of section.products; track product.id) {
+            <article class="product-row">
+              <div>
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <strong>{{ formatPrice(product.price, product.currency) }}</strong>
+              </div>
+              <div class="quantity-actions compact">
+                @if (getProductQuantity(product)) {
+                  <button type="button" aria-label="Retirer le produit" (click)="decrementItem({ id: product.id, kind: 'product', name: product.name, price: product.price, currency: product.currency, quantity: 1 })">
+                    <ion-icon name="remove-circle-outline"></ion-icon>
+                  </button>
+                  <span>{{ getProductQuantity(product) }}</span>
+                }
+                <button type="button" aria-label="Ajouter le produit" (click)="addProduct(product)">
+                  <ion-icon name="add-circle-outline"></ion-icon>
+                </button>
+              </div>
+            </article>
+          }
+        </section>
+      }
+
+      <section class="cart-panel">
+        <div class="cart-heading">
+          <span>
+            <ion-icon name="cart-outline"></ion-icon>
+            Panier
+          </span>
+          <strong>{{ cartQuantity() }} article(s)</strong>
+        </div>
+
+        @if (cartItems().length) {
+          <div class="cart-lines">
+            @for (item of cartItems(); track item.kind + item.id) {
+              <div class="cart-line">
+                <span>{{ item.quantity }}x {{ item.name }}</span>
+                <strong>{{ formatPrice(item.price * item.quantity, item.currency) }}</strong>
+                <div class="cart-line-actions">
+                  <button type="button" aria-label="Retirer" (click)="decrementItem(item)">
+                    <ion-icon name="remove-circle-outline"></ion-icon>
+                  </button>
+                  <button type="button" aria-label="Ajouter" (click)="incrementItem(item)">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="empty-cart">Selectionne un menu ou un produit.</p>
+        }
+
+        <button class="order-button" type="button" [disabled]="isSubmittingOrder" (click)="placeOrder()">
+          <ion-icon name="bag-check-outline"></ion-icon>
+          {{ isSubmittingOrder ? 'Envoi...' : 'Commander' }} &middot; {{ formatPrice(cartTotal()) }}
+        </button>
+
+        @if (orderMessage) {
+          <p class="order-message">{{ orderMessage }}</p>
+        }
+      </section>
+    } @else {
+      <section class="empty-order">
+        <span>
+          <ion-icon name="receipt-outline"></ion-icon>
+        </span>
+        <h1>Choisis un restaurant</h1>
+        <p>Va dans Home, puis utilise l'icone de commande sur un restaurant.</p>
+        <button type="button" (click)="chooseAnotherRestaurant()">Voir les restaurants</button>
+      </section>
+    }
+
+  </main>
+</ion-content>

@@ -1,0 +1,66 @@
+<ion-content [fullscreen]="true">
+  <main class="search-page">
+    <section class="search-header">
+      <span>{{ i18n.t('tabs.search') }}</span>
+      <h1>{{ i18n.t('home.categories') }}</h1>
+    </section>
+
+    <label class="search-box">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="search"
+        [value]="searchQuery"
+        (input)="searchCategories($any($event.target).value)"
+        [placeholder]="i18n.t('home.searchPlaceholder')"
+      />
+    </label>
+
+    <section class="category-grid" [attr.aria-label]="i18n.t('home.categories')">
+      @for (category of filteredCategories; track category.id) {
+        <button
+          class="category-option"
+          [class.active]="isCategorySelected(category.id)"
+          type="button"
+          (click)="selectCategory(category.id)"
+        >
+          <ion-icon [name]="category.icon"></ion-icon>
+          <span>{{ category.label }}</span>
+        </button>
+      } @empty {
+        <article class="empty-state">
+          <strong>{{ i18n.t('home.emptyTitle') }}</strong>
+          <span>{{ i18n.t('home.emptyCopy') }}</span>
+        </article>
+      }
+    </section>
+
+    <section class="search-section-heading">
+      <h2>Restaurants</h2>
+      <span>{{ filteredRestaurants.length }}</span>
+    </section>
+
+    <section class="restaurant-list" aria-label="Restaurants">
+      @for (restaurant of filteredRestaurants; track restaurant.id) {
+        <article class="restaurant-card">
+          <div class="restaurant-main">
+            <strong>{{ restaurant.name }}</strong>
+            <span class="category-pill">
+              <ion-icon [name]="getCategoryIcon(restaurant.categoryId)"></ion-icon>
+              {{ restaurant.kind }}
+            </span>
+          </div>
+          <p>{{ restaurant.address }}</p>
+          <div class="restaurant-meta">
+            <span>{{ restaurant.rating }} ({{ restaurant.reviews }})</span>
+            <span>{{ restaurant.priceLevel }}</span>
+          </div>
+        </article>
+      } @empty {
+        <article class="empty-state">
+          <strong>{{ i18n.t('home.emptyTitle') }}</strong>
+          <span>{{ i18n.t('home.emptyCopy') }}</span>
+        </article>
+      }
+    </section>
+  </main>
+</ion-content>

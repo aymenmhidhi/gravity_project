@@ -1,0 +1,7 @@
+{
+  "name": "gravity-delivery",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

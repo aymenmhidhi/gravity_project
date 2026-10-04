@@ -1,0 +1,144 @@
+<ion-content [fullscreen]="true">
+  <main class="register-shell">
+    <section class="register-card" [attr.aria-label]="i18n.t('auth.registerTitle') + ' ' + i18n.t('app.name')">
+      <div class="auth-tools">
+        <app-language-switcher></app-language-switcher>
+      </div>
+
+      <div class="brand-mark" [attr.aria-label]="i18n.t('app.name')">
+        <span class="brand-orbit">
+          <ion-icon name="rocket-outline"></ion-icon>
+        </span>
+        <div>
+          <strong>{{ i18n.t('app.name') }}</strong>
+        </div>
+      </div>
+
+      <div class="register-heading">
+        <span>{{ i18n.t('auth.newUser') }}</span>
+        <h1>{{ i18n.t('auth.registerTitle') }}</h1>
+      </div>
+
+      <form class="register-form" (ngSubmit)="register()">
+        <div class="name-grid">
+          <label class="field">
+            <span>{{ i18n.t('auth.firstName') }}</span>
+            <div class="field-control">
+              <ion-icon name="person-outline"></ion-icon>
+              <input
+                [(ngModel)]="firstName"
+                autocomplete="given-name"
+                name="firstName"
+                placeholder="Client"
+                type="text"
+              />
+            </div>
+          </label>
+
+          <label class="field">
+            <span>{{ i18n.t('auth.lastName') }}</span>
+            <div class="field-control">
+              <ion-icon name="person-outline"></ion-icon>
+              <input
+                [(ngModel)]="lastName"
+                autocomplete="family-name"
+                name="lastName"
+                placeholder="Demo"
+                type="text"
+              />
+            </div>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>{{ i18n.t('auth.email') }}</span>
+          <div class="field-control">
+            <ion-icon name="mail-outline"></ion-icon>
+            <input
+              [(ngModel)]="email"
+              autocomplete="email"
+              inputmode="email"
+              name="email"
+              [placeholder]="i18n.t('auth.registerEmailPlaceholder')"
+              type="email"
+            />
+          </div>
+        </label>
+
+        <label class="field">
+          <span>{{ i18n.t('auth.password') }}</span>
+          <div class="field-control">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input
+              [(ngModel)]="password"
+              autocomplete="new-password"
+              name="password"
+              [placeholder]="i18n.t('auth.passwordPlaceholder')"
+              type="password"
+            />
+          </div>
+        </label>
+
+        <label class="field address-field">
+          <span>{{ i18n.t('auth.address') }}</span>
+          <div class="field-control">
+            <ion-icon name="location-outline"></ion-icon>
+            <input
+              [ngModel]="addressQuery"
+              (ngModelChange)="searchAddress($event)"
+              autocomplete="street-address"
+              name="address"
+              [placeholder]="i18n.t('auth.addressPlaceholder')"
+              type="text"
+            />
+          </div>
+
+          @if (isSearchingAddress) {
+            <p class="field-hint">{{ i18n.t('auth.addressSearching') }}</p>
+          }
+
+          @if (addressSuggestions.length) {
+            <div class="address-suggestions" role="listbox">
+              @for (suggestion of addressSuggestions; track suggestion.id) {
+                <button type="button" role="option" (click)="selectAddress(suggestion)">
+                  <strong>{{ suggestion.line1 }}</strong>
+                  <span>{{ suggestion.postalCode }} {{ suggestion.city }}, {{ suggestion.country }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          @if (selectedAddress) {
+            <p class="field-hint">
+              {{ selectedAddress.postalCode }} {{ selectedAddress.city }}, {{ selectedAddress.country }}
+            </p>
+          }
+        </label>
+
+        <label class="field">
+          <span>{{ i18n.t('auth.userType') }}</span>
+          <div class="field-control select-control">
+            <ion-icon name="person-outline"></ion-icon>
+            <select [(ngModel)]="role" name="role">
+              @for (roleOption of roles; track roleOption.value) {
+                <option [value]="roleOption.value">{{ i18n.t(roleOption.labelKey) }}</option>
+              }
+            </select>
+          </div>
+        </label>
+
+        @if (errorMessage) {
+          <p class="error-message">{{ errorMessage }}</p>
+        }
+
+        <button class="submit-button" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? i18n.t('auth.registerLoading') : i18n.t('auth.registerButton') }}
+        </button>
+      </form>
+
+      <nav class="auth-links" [attr.aria-label]="i18n.t('auth.secureAccess')">
+        <a routerLink="/login">{{ i18n.t('auth.alreadyAccount') }}</a>
+      </nav>
+    </section>
+  </main>
+</ion-content>

@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.45rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(36, 255, 154, 0.24);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 1.2rem rgba(36, 255, 154, 0.08);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.language-switcher span {
+  white-space: nowrap;
+}
+
+.language-switcher select {
+  border: 0;
+  outline: 0;
+  color: #24ff9a;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.language-switcher option {
+  color: #071315;
+  background: #ffffff;
+}
