@@ -1,0 +1,9 @@
+# Active les workflows multi-agents
+[agents]
+enabled = true
+
+# Autorise jusqu'à quatre sous-agents en même temps
+max_concurrent_threads_per_session = 4
+
+# Informe l'agent principal lorsqu'un sous-agent est interrompu
+interrupt_message = true
